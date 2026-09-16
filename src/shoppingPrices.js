@@ -23,10 +23,14 @@ function distinctiveWords(name) {
 }
 
 // "₹269.00" / "Rs. 1,199" / "$5.99" -> { price, currency }
+// Match the number itself rather than stripping characters: the dot in "Rs." would otherwise
+// read as a decimal point and turn 1,199 into 0.1199.
 function parsePrice(raw) {
   const text = String(raw || "").trim();
   if (!text) return null;
-  const number = Number(text.replace(/[^0-9.]/g, "").replace(/\.(?=.*\.)/g, ""));
+  const match = text.match(/(\d[\d,]*)(\.\d{1,2})?/);
+  if (!match) return null;
+  const number = Number(match[1].replace(/,/g, "") + (match[2] || ""));
   if (!Number.isFinite(number) || number <= 0) return null;
   const currency = /₹|rs\.?|inr/i.test(text) ? "INR" : /\$|usd/i.test(text) ? "USD" : /£/.test(text) ? "GBP" : null;
   return { price: number, currency };
