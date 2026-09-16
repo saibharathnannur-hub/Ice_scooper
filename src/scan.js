@@ -281,6 +281,12 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [], brand = null } = {}
 
   result = { ...result, products: cleanProducts(result.products) };
 
+  // The first pass writes "nothing found" when the brand's own site is bare. If the fallbacks then filled the
+  // table, that note contradicts what the reader is looking at.
+  if (result.products.length > 0 && /no ice cream product data/i.test(result.notes || "")) {
+    result.notes = null;
+  }
+
   return {
     ...result,
     comparison: compareWithMyBrand(result),
