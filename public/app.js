@@ -302,7 +302,7 @@ async function postJson(path, body) {
 }
 
 // Runs the flavor scan and the Zomato lookup side by side; each card shows as soon as it's ready.
-async function runLookups(siteUrls, outletUrls) {
+async function runLookups(siteUrls, outletUrls, brand = null) {
   setBusy(true);
   resultsEl.hidden = true;
   comparisonEl.hidden = true;
@@ -321,7 +321,7 @@ async function runLookups(siteUrls, outletUrls) {
   }
   if (siteUrls.length || outletUrls.length) {
     tasks.push(
-      postJson("/api/scan", { urls: siteUrls, zomatoUrls: outletUrls }).then(
+      postJson("/api/scan", { urls: siteUrls, zomatoUrls: outletUrls, brand }).then(
         (data) => {
           setStatus("");
           render(data);
@@ -386,5 +386,5 @@ const checkedValues = (listEl) => [...listEl.querySelectorAll("input[type=checkb
 
 goBtn.addEventListener("click", () => {
   if (!found) return;
-  runLookups(checkedValues(foundWebsitesEl), checkedValues(foundOutletsEl));
+  runLookups(checkedValues(foundWebsitesEl), checkedValues(foundOutletsEl), found.brand || found.query);
 });

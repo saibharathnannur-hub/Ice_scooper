@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.post("/api/scan", async (req, res) => {
   try {
-    res.json(await scanSite(req.body?.urls ?? req.body?.url, { zomatoUrls: req.body?.zomatoUrls }));
+    res.json(await scanSite(req.body?.urls ?? req.body?.url, { zomatoUrls: req.body?.zomatoUrls, brand: req.body?.brand }));
   } catch (err) {
     const status = err instanceof ScanError ? err.status : 500;
     if (status === 500) console.error(err);

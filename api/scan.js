@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    res.status(200).json(await scanSite(req.body?.urls ?? req.body?.url, { zomatoUrls: req.body?.zomatoUrls }));
+    res.status(200).json(await scanSite(req.body?.urls ?? req.body?.url, { zomatoUrls: req.body?.zomatoUrls, brand: req.body?.brand }));
   } catch (err) {
     const status = err instanceof ScanError ? err.status : 500;
     if (status === 500) console.error(err);

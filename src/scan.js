@@ -53,13 +53,49 @@ function lacksPrices(result) {
   return share(products, (p) => p.price != null || p.sizes?.some((s) => s.price != null)) < ENOUGH_COVERAGE;
 }
 
-function brandNameFrom(result, sites) {
+function brandNameFrom(result, sites, given) {
   if (result?.brand) return result.brand;
+  if (given) return String(given).trim() || null; // the searched name, when the site itself gave nothing
   try {
     return new URL(sites[0]).hostname.replace(/^www\./, "").split(".")[0];
   } catch {
     return null;
   }
+}
+
+// Cheapest real ice cream works out around ₹27 per 100 ml, so anything far below that is a misread
+// (a "₹2" picked out of page furniture) rather than a price.
+const MIN_PRICE = 5;
+const MIN_PRICE_PER_100ML = 5;
+
+function plausiblePrice(price, ml) {
+  if (price == null) return false;
+  if (!(price >= MIN_PRICE)) return false;
+  if (ml && (price / ml) * 100 < MIN_PRICE_PER_100ML) return false;
+  return true;
+}
+
+/** Drops duplicate sizes within a flavor and prices that can't be real. */
+function cleanProducts(products) {
+  return (products || []).map((p) => {
+    const sizes = new Map();
+    for (const size of p.sizes || []) {
+      const key = size.ml != null ? `ml:${size.ml}` : `label:${String(size.label || "").toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+      const price = plausiblePrice(size.price, size.ml) ? size.price : null;
+      const prev = sizes.get(key);
+      sizes.set(
+        key,
+        prev
+          ? { ...prev, ml: prev.ml ?? size.ml, price: prev.price ?? price, currency: prev.currency || size.currency }
+          : { ...size, price }
+      );
+    }
+    return {
+      ...p,
+      sizes: [...sizes.values()],
+      price: plausiblePrice(p.price, null) ? p.price : null,
+    };
+  });
 }
 
 const flavorKey = (name) => String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -129,7 +165,7 @@ function menusAsPages(outlets) {
   }));
 }
 
-export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
+export async function scanSite(urlOrUrls, { zomatoUrls = [], brand = null } = {}) {
   const sites = [...new Set((Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls]).filter(Boolean).map(String))].slice(
     0,
     MAX_SITES
@@ -179,7 +215,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
   const wantMenus = outletUrls.length > 0 && (!result || isWeak(result));
   const wantPrices = !result || lacksPrices(result);
   const wantLabels = !result || share(products, (p) => p.ingredients?.length) < ENOUGH_COVERAGE;
-  const brandName = brandNameFrom(result, sites);
+  const brandName = brandNameFrom(result, sites, brand);
 
   if (wantMenus || wantPrices || wantLabels) {
     const [menus, retail, labels, shopping] = await Promise.all([
@@ -228,6 +264,8 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
       502
     );
   }
+
+  result = { ...result, products: cleanProducts(result.products) };
 
   return {
     ...result,
