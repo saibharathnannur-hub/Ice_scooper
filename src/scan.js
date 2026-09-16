@@ -5,6 +5,7 @@ import { fetchZomatoMenus } from "./zomatoLookup.js";
 import { fetchRetailPrices, retailPricesAsPage, lastRetailError } from "./retailPrices.js";
 import { fetchPackagedProducts, packagedProductsAsPage } from "./openFoodFacts.js";
 import { fetchShoppingPrices, shoppingPricesAsPage, lastShoppingError } from "./shoppingPrices.js";
+import { fetchWebPriceMentions, webPriceMentionsAsPage } from "./webPrices.js";
 import { compareWithMyBrand } from "./compare.js";
 
 export class ScanError extends Error {
@@ -209,6 +210,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [], brand = null } = {}
   let usedRetailPrices = false;
   let usedProductLabels = false;
   let usedShoppingPrices = false;
+  let usedWebPrices = false;
 
   // The brand's own site is the preferred source. When it comes up short, top it up from its Zomato menu
   // (flavors, sizes) and from retail listings (prices), then re-read everything together as one table.
@@ -245,6 +247,17 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [], brand = null } = {}
       errors.push({ url: "https://www.google.com/shopping", error: lastShoppingError() });
     }
 
+    // Parlour brands aren't sold in packs, so shopping finds nothing. Their prices only survive in ordinary
+    // web results, which is worse data - so it is a fallback to the fallback.
+    if (wantPrices && brandName && shopping.length === 0) {
+      const mentions = await fetchWebPriceMentions(brandName);
+      const mentionsPage = webPriceMentionsAsPage(mentions);
+      if (mentionsPage) {
+        extraPages.push(mentionsPage);
+        usedWebPrices = true;
+      }
+    }
+
     if (extraPages.length) {
       const sourceLabel = [...sites, ...menus.map((o) => o.url)].filter(Boolean).join(", ");
       const enriched = await extractFlavorsWithGemini(sourceLabel, [...pages, ...extraPages]);
@@ -278,6 +291,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [], brand = null } = {}
       usedRetailPrices,
       usedProductLabels,
       usedShoppingPrices,
+      usedWebPrices,
       pageFetchErrors: errors,
     },
   };

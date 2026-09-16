@@ -6,6 +6,7 @@ const statusEl = document.getElementById("status");
 const foundEl = document.getElementById("found");
 const foundBrandEl = document.getElementById("found-brand");
 const foundWebsitesEl = document.getElementById("found-websites");
+const foundWarnEl = document.getElementById("found-warning");
 const foundOutletsEl = document.getElementById("found-outlets");
 const goBtn = document.getElementById("go-btn");
 
@@ -121,6 +122,7 @@ function render(data) {
     data._meta?.usedZomatoMenu ? "Flavors filled in from the Zomato menu (Zomato doesn't show prices)." : "",
     data._meta?.usedRetailPrices ? "Prices filled in from DMart retail listings." : "",
     data._meta?.usedShoppingPrices ? "Prices filled in from shopping listings." : "",
+    data._meta?.usedWebPrices ? "Some prices come from web mentions and may be out of date." : "",
     data._meta?.usedProductLabels ? "Ingredients filled in from Open Food Facts pack labels." : "",
   ]
     .filter(Boolean)
@@ -221,7 +223,12 @@ function outletLink(url) {
 }
 
 function renderFound(r) {
-  foundBrandEl.textContent = `🔎 ${r.brand || r.query}`;
+  // brand is null when the search couldn't confirm the results really belong to this brand.
+  foundBrandEl.textContent = r.brand ? `🔎 ${r.brand}` : `🔎 ${r.query} (unconfirmed)`;
+  foundWarnEl.textContent = r.brand
+    ? ""
+    : "Couldn't confirm these belong to that brand — check the website link before trusting the results.";
+  foundWarnEl.hidden = Boolean(r.brand);
 
   const sites = r.websites || (r.website ? [r.website] : []);
   foundWebsitesEl.innerHTML = sites.length

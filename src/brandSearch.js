@@ -139,17 +139,21 @@ Reply with ONLY JSON: {"brand": string|null, "websiteIndexes": number[], "outlet
 // Some brand sites block crawlers (e.g. amul.com), so they never appear in search results at all.
 // Try the obvious domains and keep one only if its page TITLE names the brand - a matching domain alone is
 // not enough, since lookalike domains exist.
-/** A site counts as the brand's own only if its address or its page title names the brand. */
+// Sites that sell the business, not the ice cream: they carry a brand's name but never list a flavour.
+const FRANCHISE_SITE = /franchise|dealership|distributorship|business opportunit/i;
+
+/** A site counts as the brand's own only if it names the brand and actually sells ice cream, not franchises. */
 async function verifyMainSite(site, words) {
   if (!site) return null;
-  if (mentionsBrand(new URL(site.url).hostname, words)) return site;
+  let title = "";
   try {
     const html = await fetchHtml(site.url);
-    const title = (html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "";
-    return mentionsBrand(title, words) ? site : null;
+    title = (html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "";
+    if (FRANCHISE_SITE.test(title)) return null;
   } catch {
     return null; // unreachable sites can't be vouched for either
   }
+  return mentionsBrand(new URL(site.url).hostname, words) || mentionsBrand(title, words) ? site : null;
 }
 
 async function guessBrandSite(name) {

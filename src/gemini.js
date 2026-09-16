@@ -104,6 +104,9 @@ Rules:
   Zomato hides prices from logged-out visitors, so NEVER output a price taken from a ZOMATO MENU page.
 - A "PRODUCT LABELS" page lists ingredients printed on the brand's packs. Use it to fill the ingredients of the
   matching flavor, keeping the list short and readable (the main ingredients, not the full legal text).
+- A "WEB PRICE MENTIONS" page is the weakest source in the prompt: loose snippets from web results. Take a price
+  from it ONLY when the snippet clearly ties that price to a named flavor and pack size, and never let it override
+  a price from the brand's own site or a shopping listing. When in doubt, leave the price null.
 - A "SHOPPING PRICES" page lists retail listings from shopping search. The pack size is usually inside the product
   title ("Amul Ice Cream Tub 1 L"), so read it from there. Match a listing to a flavor only when the name clearly
   matches, ignore listings that are bundles of several flavors, and prefer the brand's own site if the two disagree.
