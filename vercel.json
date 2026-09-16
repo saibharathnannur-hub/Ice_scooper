@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "outputDirectory": "public",
+  "functions": {
+    "api/scan.js": {
+      "maxDuration": 300
+    },
+    "api/brand.js": {
+      "maxDuration": 240
+    },
+    "api/zomato.js": {
+      "maxDuration": 180
+    }
+  }
+}

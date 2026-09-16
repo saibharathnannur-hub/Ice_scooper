@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ice Cream Scout</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>🍦 Ice Cream Scout</h1>
+      <p class="subtitle">Type an ice cream brand's name (or paste its website) to get its flavors, ingredients, pack sizes and prices, plus Zomato ratings for its outlets.</p>
+    </header>
+
+    <form id="search-form">
+      <input
+        type="text"
+        id="query-input"
+        placeholder="Brand name (e.g. NIC Ice Creams) or website link"
+        autocomplete="off"
+        required
+      />
+      <button type="submit" id="search-btn">Search</button>
+    </form>
+
+    <p id="status" class="status" hidden></p>
+
+    <section id="found" class="card" hidden>
+      <h2 id="found-brand"></h2>
+      <p class="found-label">Brand websites to scan</p>
+      <ul id="found-websites" class="outlet-list"></ul>
+      <p class="found-label">Zomato outlets</p>
+      <ul id="found-outlets" class="outlet-list"></ul>
+      <button type="button" id="go-btn">Get flavors &amp; ratings</button>
+    </section>
+
+    <section id="zomato" class="card" hidden>
+      <h2>🛵 Zomato ratings</h2>
+      <p id="zomato-error" class="status error" hidden></p>
+      <ul id="zomato-outlets" class="outlet-list"></ul>
+      <p id="zomato-note" class="zomato-note"></p>
+    </section>
+
+    <section id="results" hidden>
+      <div class="results-header">
+        <h2 id="brand-name"></h2>
+        <span id="notes"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Flavor</th>
+            <th>Ingredients</th>
+            <th>Sizes</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+      <details id="meta-details">
+        <summary>Pages scanned</summary>
+        <ul id="pages-scanned"></ul>
+      </details>
+    </section>
+
+    <section id="phase2-note">
+      <p>💡 Ratings come from <strong>Zomato</strong> (India only). Zomato hides menu prices, so prices come from the brand's own website when it lists them. <strong>Swiggy</strong> isn't supported.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

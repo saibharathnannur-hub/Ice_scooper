@@ -1,0 +1,235 @@
+:root {
+  --bg: #fff8f0;
+  --card: #ffffff;
+  --text: #2b1c14;
+  --muted: #8a7768;
+  --accent: #e8825a;
+  --accent-dark: #c4643f;
+  --border: #f0e2d4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1512;
+    --card: #241c18;
+    --text: #f2e9e1;
+    --muted: #b3a294;
+    --accent: #f0a17c;
+    --accent-dark: #f6bd9c;
+    --border: #3a2d26;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+header h1 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 28px;
+}
+
+#search-form {
+  display: flex;
+  gap: 10px;
+}
+
+#query-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #2b1c14;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover { background: var(--accent-dark); }
+button:disabled { opacity: 0.6; cursor: default; }
+
+.status {
+  margin-top: 18px;
+  color: var(--muted);
+}
+
+.status.error { color: #c0392b; }
+
+.card {
+  margin-top: 24px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.card a { color: var(--accent); word-break: break-all; }
+
+.found-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 14px 0 6px;
+}
+
+.found-row { margin: 0; }
+
+.outlet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.outlet-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.outlet-list li:last-child { border-bottom: none; }
+
+.outlet-list label {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  cursor: pointer;
+}
+
+.outlet-list input[type="checkbox"] { accent-color: var(--accent); }
+
+.outlet-place {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+#go-btn { margin-top: 14px; }
+
+.zomato-ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.rating-pill {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.9rem;
+}
+
+.zomato-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 10px 0 0;
+}
+
+#results {
+  margin-top: 32px;
+}
+
+.results-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.results-header h2 { margin: 0; }
+.results-header span { color: var(--muted); font-size: 0.9rem; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+
+tr:last-child td { border-bottom: none; }
+
+.size-chip {
+  display: inline-block;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin: 2px 4px 2px 0;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.price-line {
+  white-space: nowrap;
+  font-size: 0.9rem;
+  margin: 2px 0 4px;
+}
+
+.price-label { color: var(--muted); }
+
+.missing {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+#meta-details {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+#phase2-note {
+  margin-top: 40px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
