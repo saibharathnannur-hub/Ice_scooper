@@ -4,6 +4,7 @@
 import { generateWithFallback } from "./gemini.js";
 import { normalizeZomatoOutletUrl } from "./zomato.js";
 import { fetchHtml } from "./fetchSite.js";
+import { distinctiveWords, mentionsBrand, squash, domainStems } from "./textMatch.js";
 
 export class BrandSearchError extends Error {
   constructor(message, status = 400) {
@@ -34,7 +35,6 @@ const EXCLUDED_DOMAINS = [
   "reddit.com", "pinterest.com", "quora.com", "scribd.com", "mouthshut.com", "tiktok.com",
   "apps.apple.com", "play.google.com", "franchiseindia.com", "indiafilings.com",
 ];
-const GENERIC_WORDS = new Set(["ice", "cream", "creams", "icecream", "icecreams", "india", "the", "and", "gelato", "foods"]);
 
 function uniqueBy(items, key) {
   const seen = new Set();
@@ -136,29 +136,49 @@ Reply with ONLY JSON: {"brand": string|null, "websiteIndexes": number[], "outlet
   };
 }
 
-function distinctiveWords(name) {
-  return name.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
-}
-
 // Some brand sites block crawlers (e.g. amul.com), so they never appear in search results at all.
 // Try the obvious domains and keep one only if its page TITLE names the brand - a matching domain alone is
 // not enough, since lookalike domains exist.
+/** A site counts as the brand's own only if its address or its page title names the brand. */
+async function verifyMainSite(site, words) {
+  if (!site) return null;
+  if (mentionsBrand(new URL(site.url).hostname, words)) return site;
+  try {
+    const html = await fetchHtml(site.url);
+    const title = (html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "";
+    return mentionsBrand(title, words) ? site : null;
+  } catch {
+    return null; // unreachable sites can't be vouched for either
+  }
+}
+
 async function guessBrandSite(name) {
   const words = distinctiveWords(name);
   if (words.length === 0) return null;
-  const slug = words.join("");
-  const candidates = [...new Set([
-    `https://www.${slug}.com/`, `https://www.${slug}.in/`,
-    `https://www.${slug}icecream.com/`, `https://www.${slug}icecreams.com/`,
-    `https://www.${slug}icecream.in/`, `https://www.${slug}icecreams.in/`,
-  ])];
+
+  // "Get-A-Whey" registered getawhey.com, not getwhey.com, so try the name as written as well.
+  const candidates = [...new Set(
+    domainStems(name).flatMap((stem) => [
+      `https://www.${stem}.com/`,
+      `https://www.${stem}.in/`,
+      `https://www.${stem}icecream.com/`,
+      `https://www.${stem}icecreams.com/`,
+      `https://www.${stem}icecream.in/`,
+      `https://www.${stem}icecreams.in/`,
+    ])
+  )];
+
+  // A domain that IS the brand name is evidence in itself - getawhey.com renders its title in JavaScript,
+  // so there is nothing to read in the HTML. Short names are excluded: "NIC" must not claim nic.com.
+  const stems = new Set(domainStems(name).filter((stem) => stem.length >= 6));
 
   const checks = await Promise.allSettled(
     candidates.map(async (url) => {
-      const html = await fetchHtml(url);
+      const host = new URL(url).hostname.replace(/^www\./, "");
+      const base = squash(host.split(".")[0]);
+      const html = await fetchHtml(url); // must at least load
       const title = (html.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "";
-      const squashed = title.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (!squashed || !words.every((w) => squashed.includes(w))) return null;
+      if (!mentionsBrand(title, words) && !stems.has(base)) return null;
       return { url, title: title.replace(/\s+/g, " ").trim(), snippet: "" };
     })
   );
@@ -168,15 +188,11 @@ async function guessBrandSite(name) {
 // Used when Gemini is busy: keep results whose domain or title contains every distinctive word of the brand name.
 function pickByName(name, websites, outlets) {
   const words = distinctiveWords(name);
-  const mentions = (text) => {
-    const squashed = String(text || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    return words.length > 0 && words.every((w) => squashed.includes(w));
-  };
   return {
     model: null,
     brand: null,
-    websites: websites.filter((c) => mentions(new URL(c.url).hostname)),
-    outlets: outlets.filter((c) => mentions(c.title)),
+    websites: websites.filter((c) => mentionsBrand(new URL(c.url).hostname, words)),
+    outlets: outlets.filter((c) => mentionsBrand(c.title, words)),
   };
 }
 
@@ -233,9 +249,12 @@ export async function findBrandLinks(rawName) {
     pick = pickByName(name, websites, outlets);
   }
 
-  if (pick.websites.length === 0) {
+  // Search results for an odd name can be so polluted that the model picks a plausible but wrong company
+  // ("Get-A-Whey" -> getawaydesserts.com), so the main site has to prove it names the brand.
+  const verifiedMain = await verifyMainSite(pick.websites[0], distinctiveWords(name));
+  if (!verifiedMain) {
     const guessed = await guessBrandSite(name); // free: no search credits
-    if (guessed) pick.websites = [guessed];
+    pick.websites = guessed ? [guessed] : pick.websites.slice(1);
   }
 
   // The main site is whatever was picked first; any extra site must at least carry a brand word in its hostname,
@@ -244,7 +263,7 @@ export async function findBrandLinks(rawName) {
   const pickedSites = pick.websites
     .filter((w, i) => {
       if (i === 0) return true;
-      const host = new URL(w.url).hostname.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const host = squash(new URL(w.url).hostname);
       return words.some((word) => host.includes(word));
     })
     .slice(0, MAX_SITES)

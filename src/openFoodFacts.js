@@ -1,19 +1,11 @@
 // Open Food Facts is a free, open database (ODbL) of packaged products, including Indian ice creams.
 // It carries the printed ingredient lists that packaged brands rarely publish on their own sites. No key needed.
+import { distinctiveWords, mentionsBrand } from "./textMatch.js";
+
 const UA = "IceCreamScout/1.0 (https://icecream-scout.vercel.app)";
 const SEARCH_URL = "https://world.openfoodfacts.org/cgi/search.pl";
 const TIMEOUT_MS = 12000;
 const MAX_ITEMS = 30;
-
-const GENERIC_WORDS = new Set(["ice", "cream", "creams", "icecream", "icecreams", "india", "the", "and", "gelato", "foods"]);
-
-function distinctiveWords(name) {
-  return String(name || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
-}
 
 /** Packaged products for this brand with their printed ingredients. Returns [] when the brand isn't listed. */
 export async function fetchPackagedProducts(brandName) {
@@ -52,8 +44,7 @@ export async function fetchPackagedProducts(brandName) {
   const items = [];
   for (const p of data?.products || []) {
     // The search is fuzzy, so keep only products whose own brand field names this brand.
-    const brands = String(p.brands || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (!words.every((w) => brands.includes(w))) continue;
+    if (!mentionsBrand(p.brands, words)) continue;
     if (!p.product_name || !p.ingredients_text) continue;
 
     items.push({

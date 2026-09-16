@@ -1,27 +1,19 @@
 // Prices from Google Shopping, via Serper. This is the one price source that works from a cloud host:
 // DMart blocks Vercel's servers and the delivery apps hide prices from logged-out visitors.
 // Without SERPER_API_KEY the app simply skips it.
+import { distinctiveWords, mentionsBrand, squash } from "./textMatch.js";
+
 const ENDPOINT = "https://google.serper.dev/shopping";
 const CACHE_MS = 6 * 60 * 60 * 1000; // repeat scans of a brand must not re-spend search credits
 const cache = new Map();
 const TIMEOUT_MS = 15000;
 const MAX_ITEMS = 70; // two searches of 40, minus the overlap between them
 
-const GENERIC_WORDS = new Set(["ice", "cream", "creams", "icecream", "icecreams", "india", "the", "and", "gelato", "foods"]);
-
 let lastError = null;
 
 /** Why the most recent lookup came back empty, for the scan's diagnostics. */
 export function lastShoppingError() {
   return lastError;
-}
-
-function distinctiveWords(name) {
-  return String(name || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
 }
 
 // "₹269.00" / "Rs. 1,199" / "$5.99" -> { price, currency }
@@ -64,17 +56,15 @@ export async function fetchShoppingPrices(brandName, { country = "in" } = {}) {
     const title = String(entry.title || "");
     // Sellers stuff rival brand names into the tail of a title ("... | naturals coconut ice cream price"),
     // so only trust the brand name where it belongs: in the listing's brand field, or at the start of the title.
-    const brandField = String(entry.brand || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const titleStart = title.toLowerCase().split(/[|–—]/)[0].replace(/[^a-z0-9]/g, "").slice(0, 60);
-    // Every distinctive word must appear, or a single common word carries the match: "Top n Town" was
+    // Every distinctive word must appear, or one common word carries the match: "Top n Town" was
     // matching "Baskin Robbins Top Notch Butterscotch" on the word "top" alone.
-    const haystack = `${brandField} ${titleStart}`;
-    if (!words.every((w) => haystack.includes(w))) continue;
+    const titleStart = title.split(/[|–—]/)[0].slice(0, 70);
+    if (!mentionsBrand(`${entry.brand || ""} ${titleStart}`, words)) continue;
 
     const parsed = parsePrice(entry.price);
     if (!parsed) continue;
 
-    const key = title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+    const key = squash(title).slice(0, 60);
     if (seen.has(key)) continue; // the two queries overlap
     seen.add(key);
 

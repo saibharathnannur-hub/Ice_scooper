@@ -1,21 +1,13 @@
 // Packaged brands (Amul, Havmor, Kwality Wall's...) rarely publish prices on their own sites, and delivery apps
 // hide them. DMart's storefront API is public, needs no key, and carries MRP, selling price and pack size.
+import { distinctiveWords, mentionsBrand } from "./textMatch.js";
+
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const SEARCH_URL = "https://digital.dmart.in/api/v2/search";
 const STORE_ID = "10151"; // DMart prices vary slightly by store; this is their default web store
 const TIMEOUT_MS = 12000;
 const MAX_ITEMS = 40;
-
-const GENERIC_WORDS = new Set(["ice", "cream", "creams", "icecream", "icecreams", "india", "the", "and", "gelato", "foods"]);
-
-function distinctiveWords(name) {
-  return String(name || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
-}
 
 let lastError = null;
 
@@ -57,8 +49,7 @@ export async function fetchRetailPrices(brandName) {
   const items = [];
   for (const product of data?.products || []) {
     // DMart's search is fuzzy - a search for one brand returns others, so match on the maker's own name.
-    const maker = String(product.manufacturer || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (!words.every((w) => maker.includes(w))) continue;
+    if (!mentionsBrand(product.manufacturer, words)) continue;
 
     for (const sku of product.sKUs || []) {
       const price = Number(sku.priceSALE);
