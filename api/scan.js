@@ -3,7 +3,7 @@ import { scanSite, ScanError } from "../src/scan.js";
 import { createRateLimiter, clientIp } from "../src/rateLimit.js";
 
 // Keeps one visitor from burning the whole Gemini free quota.
-const MAX_SCANS_PER_WINDOW = 5;
+const MAX_SCANS_PER_WINDOW = 12;
 const isRateLimited = createRateLimiter({ windowMs: 10 * 60 * 1000, max: MAX_SCANS_PER_WINDOW });
 
 export default async function handler(req, res) {

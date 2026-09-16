@@ -53,7 +53,7 @@ export async function fetchPackagedProducts(brandName) {
   for (const p of data?.products || []) {
     // The search is fuzzy, so keep only products whose own brand field names this brand.
     const brands = String(p.brands || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (!words.some((w) => brands.includes(w))) continue;
+    if (!words.every((w) => brands.includes(w))) continue;
     if (!p.product_name || !p.ingredients_text) continue;
 
     items.push({

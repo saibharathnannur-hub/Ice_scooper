@@ -58,7 +58,7 @@ export async function fetchRetailPrices(brandName) {
   for (const product of data?.products || []) {
     // DMart's search is fuzzy - a search for one brand returns others, so match on the maker's own name.
     const maker = String(product.manufacturer || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (!words.some((w) => maker.includes(w))) continue;
+    if (!words.every((w) => maker.includes(w))) continue;
 
     for (const sku of product.sKUs || []) {
       const price = Number(sku.priceSALE);

@@ -3,7 +3,7 @@ import { findBrandLinks, BrandSearchError } from "../src/brandSearch.js";
 import { createRateLimiter, clientIp } from "../src/rateLimit.js";
 
 // Each search uses 2 of the free monthly Tavily search credits (cached searches use none).
-const MAX_SEARCHES_PER_WINDOW = 5;
+const MAX_SEARCHES_PER_WINDOW = 15;
 const isRateLimited = createRateLimiter({ windowMs: 10 * 60 * 1000, max: MAX_SEARCHES_PER_WINDOW });
 
 export default async function handler(req, res) {

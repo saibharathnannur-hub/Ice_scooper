@@ -4,7 +4,7 @@ import { ZomatoError } from "../src/zomato.js";
 import { createRateLimiter, clientIp } from "../src/rateLimit.js";
 
 // Each lookup is a paid Apify run (about $0.002 per outlet).
-const MAX_LOOKUPS_PER_WINDOW = 5;
+const MAX_LOOKUPS_PER_WINDOW = 12;
 const isRateLimited = createRateLimiter({ windowMs: 10 * 60 * 1000, max: MAX_LOOKUPS_PER_WINDOW });
 
 export default async function handler(req, res) {

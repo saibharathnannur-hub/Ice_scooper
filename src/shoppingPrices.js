@@ -66,7 +66,10 @@ export async function fetchShoppingPrices(brandName, { country = "in" } = {}) {
     // so only trust the brand name where it belongs: in the listing's brand field, or at the start of the title.
     const brandField = String(entry.brand || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const titleStart = title.toLowerCase().split(/[|–—]/)[0].replace(/[^a-z0-9]/g, "").slice(0, 60);
-    if (!words.some((w) => brandField.includes(w) || titleStart.includes(w))) continue;
+    // Every distinctive word must appear, or a single common word carries the match: "Top n Town" was
+    // matching "Baskin Robbins Top Notch Butterscotch" on the word "top" alone.
+    const haystack = `${brandField} ${titleStart}`;
+    if (!words.every((w) => haystack.includes(w))) continue;
 
     const parsed = parsePrice(entry.price);
     if (!parsed) continue;

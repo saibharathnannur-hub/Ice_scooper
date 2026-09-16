@@ -3,7 +3,7 @@ import { fetchCompanySales } from "../src/companySales.js";
 import { createRateLimiter, clientIp } from "../src/rateLimit.js";
 
 // One search credit and one Gemini call per lookup, so keep it modest.
-const MAX_PER_WINDOW = 5;
+const MAX_PER_WINDOW = 12;
 const isRateLimited = createRateLimiter({ windowMs: 10 * 60 * 1000, max: MAX_PER_WINDOW });
 
 export default async function handler(req, res) {
