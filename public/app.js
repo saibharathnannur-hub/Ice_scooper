@@ -53,7 +53,7 @@ function escapeHtml(str) {
 }
 
 function sizeLabel(s) {
-  return s.label || (s.ml ? `${s.ml} ml` : "unknown");
+  return s.label || (s.ml ? `${s.ml} ml` : "size not stated");
 }
 
 function renderSizes(sizes) {

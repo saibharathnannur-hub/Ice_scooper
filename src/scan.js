@@ -172,7 +172,8 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [], brand = null } = {}
   );
   const outletUrls = (Array.isArray(zomatoUrls) ? zomatoUrls : [zomatoUrls]).filter(Boolean).map(String);
 
-  if (sites.length === 0 && outletUrls.length === 0) {
+  // A brand name alone is enough: shopping listings and pack labels are both looked up by name.
+  if (sites.length === 0 && outletUrls.length === 0 && !brand) {
     throw new ScanError("Please provide a valid http(s) URL.", 400);
   }
   if (!sites.every(isValidHttpUrl)) {

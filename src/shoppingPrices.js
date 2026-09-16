@@ -3,7 +3,7 @@
 // Without SERPER_API_KEY the app simply skips it.
 const ENDPOINT = "https://google.serper.dev/shopping";
 const TIMEOUT_MS = 15000;
-const MAX_ITEMS = 30;
+const MAX_ITEMS = 40; // one search returns 40 listings at most, so keep all of them
 
 const GENERIC_WORDS = new Set(["ice", "cream", "creams", "icecream", "icecreams", "india", "the", "and", "gelato", "foods"]);
 
