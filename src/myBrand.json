@@ -1,0 +1,96 @@
+{
+  "name": "MeethaPitara",
+  "website": "https://www.meethapitara.com/",
+  "city": "Mumbai",
+  "note": "Edit this file to keep your own catalogue up to date - prices, sizes and flavours.",
+  "products": [
+    {
+      "flavor": "Signature Gulab Jamun Delight",
+      "description": "The last one in the dabba. Warm jamun, chilled creaminess. Rose, cardamom and soft mithai sweetness, scooped instead of served on a plate.",
+      "ingredients": [
+        "Rose",
+        "cardamom"
+      ],
+      "sizes": [
+        {
+          "label": "100 ml Cup",
+          "ml": 100,
+          "price": null,
+          "currency": null
+        },
+        {
+          "label": "500 ml Tub",
+          "ml": 500,
+          "price": null,
+          "currency": null
+        }
+      ]
+    },
+    {
+      "flavor": "Mumbai Chaat Surprise",
+      "description": "Khatta-meetha chaat nostalgia. Tamarind, mint, a flick of chaat masala. Sweet, sour, lightly spicy. A Marine Drive evening, reduced into a scoop.",
+      "ingredients": [
+        "Tamarind",
+        "mint",
+        "chaat masala"
+      ],
+      "sizes": [
+        {
+          "label": "100 ml Cup",
+          "ml": 100,
+          "price": null,
+          "currency": null
+        },
+        {
+          "label": "500 ml Tub",
+          "ml": 500,
+          "price": null,
+          "currency": null
+        }
+      ]
+    },
+    {
+      "flavor": "Classic Belgian Chocolate",
+      "description": "Dark cocoa comfort, made richer. Deep, slow chocolate with a thick, almost-fudge body. The one everyone secretly goes back to.",
+      "ingredients": [
+        "Dark cocoa",
+        "chocolate"
+      ],
+      "sizes": [
+        {
+          "label": "100 ml Cup",
+          "ml": 100,
+          "price": null,
+          "currency": null
+        },
+        {
+          "label": "500 ml Tub",
+          "ml": 500,
+          "price": null,
+          "currency": null
+        }
+      ]
+    },
+    {
+      "flavor": "Classic French Vanilla",
+      "description": "Everyday comfort, made deeper. Real vanilla, slow and golden. The flavour that quietly makes every meal feel complete.",
+      "ingredients": [
+        "Real vanilla"
+      ],
+      "sizes": [
+        {
+          "label": "100 ml Cup",
+          "ml": 100,
+          "price": null,
+          "currency": null
+        },
+        {
+          "label": "500 ml Tub",
+          "ml": 500,
+          "price": null,
+          "currency": null
+        }
+      ]
+    }
+  ]
+}

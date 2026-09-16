@@ -4,6 +4,7 @@ import { extractFlavorsWithGemini } from "./gemini.js";
 import { fetchZomatoMenus } from "./zomatoLookup.js";
 import { fetchRetailPrices, retailPricesAsPage, lastRetailError } from "./retailPrices.js";
 import { fetchPackagedProducts, packagedProductsAsPage } from "./openFoodFacts.js";
+import { compareWithMyBrand } from "./compare.js";
 
 export class ScanError extends Error {
   constructor(message, status = 400) {
@@ -221,6 +222,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
 
   return {
     ...result,
+    comparison: compareWithMyBrand(result),
     _meta: {
       sitesScanned: scanned,
       pagesScanned: pages.map((p) => p.url),

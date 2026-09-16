@@ -20,6 +20,16 @@ const notesEl = document.getElementById("notes");
 const bodyEl = document.getElementById("results-body");
 const pagesScannedEl = document.getElementById("pages-scanned");
 
+const comparisonEl = document.getElementById("comparison");
+const comparisonTitleEl = document.getElementById("comparison-title");
+const comparisonSubEl = document.getElementById("comparison-sub");
+const compareGridEl = document.getElementById("compare-grid");
+
+const salesEl = document.getElementById("sales");
+const salesTitleEl = document.getElementById("sales-title");
+const salesListEl = document.getElementById("sales-list");
+const salesNoteEl = document.getElementById("sales-note");
+
 const CURRENCY_SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£", AUD: "A$", CAD: "C$", SGD: "S$", AED: "AED " };
 const MISSING = `<span class="missing">Not found</span>`;
 
@@ -123,6 +133,82 @@ function render(data) {
   });
 
   resultsEl.hidden = false;
+  renderComparison(data.comparison);
+
+  // Revenue is looked up separately so it can never hold up or break the table.
+  if (data.brand) {
+    postJson("/api/sales", { brand: data.brand }).then(renderSales, () => {});
+  }
+}
+
+const tags = (items) => items.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("") || MISSING;
+
+function compareCard(block) {
+  let body = "";
+  if (block.kind === "shared") {
+    body = block.rows.length
+      ? `<ul class="compare-list">${block.rows
+          .map(
+            (r) => `<li><strong>${escapeHtml(r.mine)}</strong><br /><span class="compare-vs">vs ${escapeHtml(r.theirs)}${
+              r.exact ? "" : " (close match)"
+            }${r.theirPrice != null ? ` · ₹${escapeHtml(r.theirPrice)}` : ""}</span></li>`
+          )
+          .join("")}</ul>`
+      : `<p class="compare-note">${MISSING}</p>`;
+  } else if (block.kind === "pricing") {
+    body = `<ul class="compare-list">
+        <li>Your sizes: ${tags(block.mySizes)}</li>
+        <li>Their sizes: ${tags(block.theirSizes)}</li>
+        ${block.examples
+          .map(
+            (e) =>
+              `<li>${escapeHtml(e.flavor)} <span class="compare-vs">${escapeHtml(e.label)} · ₹${escapeHtml(
+                e.price
+              )} · ₹${escapeHtml(e.per100)}/100ml</span></li>`
+          )
+          .join("")}
+      </ul>`;
+  } else {
+    body = `<ul class="compare-list">
+        <li>They make, you don't: ${tags(block.theyHaveYouDont)}</li>
+        <li>You make, they don't: ${tags(block.youHaveTheyDont)}</li>
+      </ul>`;
+  }
+
+  return `<article class="compare-card">
+      <h3>${escapeHtml(block.title)}</h3>
+      <p class="compare-headline">${escapeHtml(block.headline)}</p>
+      ${body}
+      ${block.note ? `<p class="compare-note">${escapeHtml(block.note)}</p>` : ""}
+    </article>`;
+}
+
+function renderComparison(comparison) {
+  if (!comparison) {
+    comparisonEl.hidden = true;
+    return;
+  }
+  comparisonTitleEl.textContent = `⚖️ ${comparison.myBrand} vs ${comparison.theirBrand}`;
+  comparisonSubEl.textContent = "Worked out from the table above";
+  compareGridEl.innerHTML = comparison.blocks.map(compareCard).join("");
+  comparisonEl.hidden = false;
+}
+
+function renderSales(sales) {
+  if (!sales || !sales.figures?.length) {
+    salesEl.hidden = true;
+    return;
+  }
+  salesTitleEl.textContent = `📈 ${sales.company}: reported revenue`;
+  salesListEl.innerHTML = sales.figures
+    .map(
+      (f) => `<li><strong>${escapeHtml(f.period)}</strong> — ${escapeHtml(f.amount)}${
+        f.basis ? ` <span class="compare-vs">(${escapeHtml(f.basis)})</span>` : ""
+      } <a href="${escapeHtml(f.sourceUrl)}" target="_blank" rel="noopener">source ↗</a></li>`
+    )
+    .join("");
+  salesNoteEl.textContent = [sales.note, sales.caveat].filter(Boolean).join(" ");
+  salesEl.hidden = false;
 }
 
 function placeLabel(o) {
@@ -218,11 +304,13 @@ async function postJson(path, body) {
 async function runLookups(siteUrls, outletUrls) {
   setBusy(true);
   resultsEl.hidden = true;
+  comparisonEl.hidden = true;
+  salesEl.hidden = true;
   zomatoEl.hidden = true;
   const siteLabel = siteUrls.map((u) => new URL(u).hostname).join(", ");
   setStatus(
     siteUrls.length
-      ? `Scanning ${siteLabel} for flavors… this can take 10-60s.`
+      ? `Scanning ${siteLabel} for flavors… this usually takes 30-90 seconds.`
       : "Looking up Zomato ratings…"
   );
 
@@ -264,6 +352,8 @@ searchForm.addEventListener("submit", async (e) => {
   found = null;
   foundEl.hidden = true;
   resultsEl.hidden = true;
+  comparisonEl.hidden = true;
+  salesEl.hidden = true;
   zomatoEl.hidden = true;
 
   if (looksLikeUrl(q)) {

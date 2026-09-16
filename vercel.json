@@ -11,6 +11,9 @@
     },
     "api/zomato.js": {
       "maxDuration": 180
+    },
+    "api/sales.js": {
+      "maxDuration": 120
     }
   }
 }

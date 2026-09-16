@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { scanSite, ScanError } from "./scan.js";
 import { findBrandLinks, BrandSearchError } from "./brandSearch.js";
 import { lookupZomatoOutlets } from "./zomatoLookup.js";
+import { fetchCompanySales } from "./companySales.js";
 import { ZomatoError } from "./zomato.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,15 @@ app.post("/api/zomato", async (req, res) => {
     const status = err instanceof ZomatoError ? err.status : 500;
     if (status >= 500) console.error(err);
     res.status(status).json({ error: err.message || "Something went wrong looking up Zomato ratings." });
+  }
+});
+
+app.post("/api/sales", async (req, res) => {
+  try {
+    res.json((await fetchCompanySales(req.body?.brand)) || { figures: [] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Couldn't look up revenue figures." });
   }
 });
 

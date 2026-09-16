@@ -221,8 +221,16 @@ button:disabled { opacity: 0.6; cursor: default; }
 .results-header h2 { margin: 0; }
 .results-header span { color: var(--muted); font-size: 0.9rem; }
 
+/* Wide tables scroll inside this box so the page itself never scrolls sideways. */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+}
+
 table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
   background: var(--card);
   border: 1px solid var(--border);
@@ -270,6 +278,70 @@ tr:last-child td { border-bottom: none; }
   color: var(--muted);
   font-size: 0.8rem;
   font-style: italic;
+  white-space: nowrap;
+}
+
+#comparison { margin-top: 36px; }
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+
+.compare-card {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.compare-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.compare-headline {
+  margin: 0 0 12px;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.compare-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.compare-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-list li:last-child { border-bottom: none; }
+
+.compare-vs { color: var(--muted); }
+
+.compare-note {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 9px;
+  margin: 2px 4px 2px 0;
+  font-size: 0.8rem;
   white-space: nowrap;
 }
 
