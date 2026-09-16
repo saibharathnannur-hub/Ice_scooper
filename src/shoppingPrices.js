@@ -80,9 +80,11 @@ export async function fetchShoppingPrices(brandName, { country = "in" } = {}) {
   const items = [];
   for (const entry of data?.shopping || []) {
     const title = String(entry.title || "");
-    // Shopping results drift off-brand quickly, so keep only titles that name this brand.
-    const squashed = title.toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (!words.some((w) => squashed.includes(w))) continue;
+    // Sellers stuff rival brand names into the tail of a title ("... | naturals coconut ice cream price"),
+    // so only trust the brand name where it belongs: in the listing's brand field, or at the start of the title.
+    const brandField = String(entry.brand || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const titleStart = title.toLowerCase().split(/[|–—]/)[0].replace(/[^a-z0-9]/g, "").slice(0, 60);
+    if (!words.some((w) => brandField.includes(w) || titleStart.includes(w))) continue;
 
     const parsed = parsePrice(entry.price);
     if (!parsed) continue;
