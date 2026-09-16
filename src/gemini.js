@@ -104,6 +104,9 @@ Rules:
   Zomato hides prices from logged-out visitors, so NEVER output a price taken from a ZOMATO MENU page.
 - A "PRODUCT LABELS" page lists ingredients printed on the brand's packs. Use it to fill the ingredients of the
   matching flavor, keeping the list short and readable (the main ingredients, not the full legal text).
+- A "SHOPPING PRICES" page lists retail listings from shopping search. The pack size is usually inside the product
+  title ("Amul Ice Cream Tub 1 L"), so read it from there. Match a listing to a flavor only when the name clearly
+  matches, ignore listings that are bundles of several flavors, and prefer the brand's own site if the two disagree.
 - A "RETAIL PRICES" page lists what an Indian retailer charges for this brand's packs. Use it to fill in prices and
   pack sizes: attach each pack's selling price (not the MRP) to the matching flavor and size. Match on the flavor name
   only - if a pack doesn't clearly belong to a flavor in the table, add it as its own row rather than guessing.

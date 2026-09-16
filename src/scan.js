@@ -4,6 +4,7 @@ import { extractFlavorsWithGemini } from "./gemini.js";
 import { fetchZomatoMenus } from "./zomatoLookup.js";
 import { fetchRetailPrices, retailPricesAsPage, lastRetailError } from "./retailPrices.js";
 import { fetchPackagedProducts, packagedProductsAsPage } from "./openFoodFacts.js";
+import { fetchShoppingPrices, shoppingPricesAsPage, lastShoppingError } from "./shoppingPrices.js";
 import { compareWithMyBrand } from "./compare.js";
 
 export class ScanError extends Error {
@@ -170,6 +171,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
   let usedZomatoMenu = false;
   let usedRetailPrices = false;
   let usedProductLabels = false;
+  let usedShoppingPrices = false;
 
   // The brand's own site is the preferred source. When it comes up short, top it up from its Zomato menu
   // (flavors, sizes) and from retail listings (prices), then re-read everything together as one table.
@@ -180,7 +182,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
   const brandName = brandNameFrom(result, sites);
 
   if (wantMenus || wantPrices || wantLabels) {
-    const [menus, retail, labels] = await Promise.all([
+    const [menus, retail, labels, shopping] = await Promise.all([
       wantMenus
         ? fetchZomatoMenus(outletUrls).catch((err) => {
             errors.push({ url: outletUrls[0], error: `Zomato menu lookup failed: ${err.message}` });
@@ -189,6 +191,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
         : [],
       wantPrices && brandName ? fetchRetailPrices(brandName) : [],
       wantLabels && brandName ? fetchPackagedProducts(brandName) : [],
+      wantPrices && brandName ? fetchShoppingPrices(brandName) : [],
     ]);
 
     const extraPages = [...menusAsPages(menus)];
@@ -199,6 +202,11 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
     }
     const labelsPage = packagedProductsAsPage(labels);
     if (labelsPage) extraPages.push(labelsPage);
+    const shoppingPage = shoppingPricesAsPage(shopping);
+    if (shoppingPage) extraPages.push(shoppingPage);
+    else if (wantPrices && brandName && lastShoppingError()) {
+      errors.push({ url: "https://www.google.com/shopping", error: lastShoppingError() });
+    }
 
     if (extraPages.length) {
       const sourceLabel = [...sites, ...menus.map((o) => o.url)].filter(Boolean).join(", ");
@@ -207,6 +215,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
       usedZomatoMenu = menus.length > 0;
       usedRetailPrices = Boolean(retailPage);
       usedProductLabels = Boolean(labelsPage);
+      usedShoppingPrices = Boolean(shoppingPage);
     }
   }
 
@@ -229,6 +238,7 @@ export async function scanSite(urlOrUrls, { zomatoUrls = [] } = {}) {
       usedZomatoMenu,
       usedRetailPrices,
       usedProductLabels,
+      usedShoppingPrices,
       pageFetchErrors: errors,
     },
   };

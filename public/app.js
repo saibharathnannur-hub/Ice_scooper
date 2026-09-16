@@ -120,6 +120,7 @@ function render(data) {
     sitesScanned.length > 1 ? `Merged from ${sitesScanned.length} sites.` : "",
     data._meta?.usedZomatoMenu ? "Flavors filled in from the Zomato menu (Zomato doesn't show prices)." : "",
     data._meta?.usedRetailPrices ? "Prices filled in from DMart retail listings." : "",
+    data._meta?.usedShoppingPrices ? "Prices filled in from shopping listings." : "",
     data._meta?.usedProductLabels ? "Ingredients filled in from Open Food Facts pack labels." : "",
   ]
     .filter(Boolean)
