@@ -4,9 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ice Cream Scout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Decorative cones in the page margins. Hidden on narrow screens so they never sit under the text. -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <symbol id="cone" viewBox="0 0 130 170">
+      <g stroke="#1a1a1a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M43 78 L64 160 L92 84 Z" fill="#b1703c" />
+        <path d="M57 96 l10 -6 M62 114 l10 -6 M68 132 l9 -6 M52 110 l8 -5 M58 128 l8 -5" stroke-width="5" fill="none" />
+        <circle cx="86" cy="45" r="27" fill="#7fa8d4" />
+        <circle cx="93" cy="79" r="30" fill="#8fc673" />
+        <circle cx="48" cy="52" r="34" fill="#e78aa9" />
+      </g>
+    </symbol>
+  </svg>
+
+  <div class="decor" aria-hidden="true">
+    <svg class="cone cone-1"><use href="#cone" /></svg>
+    <svg class="cone cone-2"><use href="#cone" /></svg>
+    <svg class="cone cone-3"><use href="#cone" /></svg>
+    <svg class="cone cone-4"><use href="#cone" /></svg>
+    <svg class="cone cone-5"><use href="#cone" /></svg>
+  </div>
+
   <main>
     <header>
       <h1>🍦 Ice Cream Scout</h1>
@@ -63,6 +87,12 @@
         <ul id="pages-scanned"></ul>
       </details>
     </section>
+
+    <div class="cone-strip" aria-hidden="true">
+      <svg class="strip-cone"><use href="#cone" /></svg>
+      <svg class="strip-cone"><use href="#cone" /></svg>
+      <svg class="strip-cone"><use href="#cone" /></svg>
+    </div>
 
     <section id="phase2-note">
       <p>💡 Ratings come from <strong>Zomato</strong> (India only). Zomato hides menu prices, so prices come from the brand's own website when it lists them. <strong>Swiggy</strong> isn't supported.</p>

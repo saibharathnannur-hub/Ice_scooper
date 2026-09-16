@@ -1,23 +1,12 @@
 :root {
-  --bg: #fff8f0;
-  --card: #ffffff;
-  --text: #2b1c14;
-  --muted: #8a7768;
+  --bg: #fbf1dc;          /* cream */
+  --bg-deep: #f3e5c8;     /* cream, a shade down, for chips and wells */
+  --card: #fffaf0;
+  --text: #33241a;
+  --muted: #8a7460;
   --accent: #e8825a;
   --accent-dark: #c4643f;
-  --border: #f0e2d4;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1512;
-    --card: #241c18;
-    --text: #f2e9e1;
-    --muted: #b3a294;
-    --accent: #f0a17c;
-    --accent-dark: #f6bd9c;
-    --border: #3a2d26;
-  }
+  --border: #e8d7ba;
 }
 
 * { box-sizing: border-box; }
@@ -29,20 +18,75 @@ body {
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Cones sit in the page margins, behind everything, and never catch clicks. */
+.decor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.cone {
+  position: absolute;
+  width: 140px;
+  height: 184px;
+  opacity: 0.85;
+}
+
+.cone-1 { top: 6%; left: 2.5%; transform: rotate(-14deg); }
+.cone-2 { top: 44%; left: 5.5%; width: 104px; height: 136px; transform: rotate(11deg); opacity: 0.7; }
+.cone-3 { bottom: 7%; left: 1.5%; width: 150px; height: 196px; transform: rotate(-6deg); opacity: 0.78; }
+.cone-4 { top: 12%; right: 3%; width: 120px; height: 157px; transform: rotate(16deg); }
+.cone-5 { bottom: 10%; right: 2%; transform: rotate(-9deg); opacity: 0.75; }
+
+/* Below this width the margins disappear, so the cones would end up behind the text. */
+@media (max-width: 1240px) {
+  .decor { display: none; }
+}
+
+/* Shown at every width, including phones where there are no margins for the floating cones. */
+.cone-strip {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 18px;
+  margin-top: 44px;
+}
+
+.strip-cone {
+  width: 62px;
+  height: 81px;
+  opacity: 0.9;
+}
+
+.strip-cone:nth-child(1) { transform: rotate(-12deg); }
+.strip-cone:nth-child(2) { width: 78px; height: 102px; }
+.strip-cone:nth-child(3) { transform: rotate(12deg); }
+
 main {
+  position: relative;
+  z-index: 1;
   max-width: 1000px;
   margin: 0 auto;
   padding: 40px 20px 80px;
 }
 
 header h1 {
-  margin: 0 0 6px;
-  font-size: 2rem;
+  margin: 0 0 10px;
+  font-family: "Titan One", "Segoe UI", sans-serif;
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  color: #5b3a24;
+  text-shadow: 2px 2px 0 var(--bg-deep);
 }
 
 .subtitle {
   color: var(--muted);
   margin: 0 0 28px;
+  max-width: 62ch;
 }
 
 #search-form {
@@ -59,6 +103,11 @@ header h1 {
   background: var(--card);
   color: var(--text);
   font-size: 1rem;
+}
+
+#query-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 button {
@@ -80,7 +129,7 @@ button:disabled { opacity: 0.6; cursor: default; }
   color: var(--muted);
 }
 
-.status.error { color: #c0392b; }
+.status.error { color: #b5372b; }
 
 .card {
   margin-top: 24px;
@@ -95,7 +144,7 @@ button:disabled { opacity: 0.6; cursor: default; }
   font-size: 1.2rem;
 }
 
-.card a { color: var(--accent); word-break: break-all; }
+.card a { color: var(--accent-dark); word-break: break-all; }
 
 .found-label {
   color: var(--muted);
@@ -144,7 +193,7 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 
 .rating-pill {
-  background: var(--bg);
+  background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px 12px;
@@ -188,13 +237,19 @@ th, td {
   vertical-align: top;
 }
 
-th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  background: var(--bg-deep);
+}
 
 tr:last-child td { border-bottom: none; }
 
 .size-chip {
   display: inline-block;
-  background: var(--bg);
+  background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 2px 10px;
